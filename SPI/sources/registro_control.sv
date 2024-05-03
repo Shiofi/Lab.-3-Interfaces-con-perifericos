@@ -1,7 +1,5 @@
 `timescale 1ns / 1ps
 
-parameter N = 32;
-
 module registro_control( input logic clk,
                          input logic rst,
                          input logic [31:0] IN1,
