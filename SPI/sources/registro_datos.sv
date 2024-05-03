@@ -1,7 +1,6 @@
 `timescale 1ns / 1ps
 
 parameter N = 8;
-
 module registro_datos( input logic clk,
                        input logic rst,
                        input logic [31:0] IN1,
@@ -19,12 +18,15 @@ logic [N-1:0] [2**N-1:0] registro;
 always_ff @(posedge clk) begin
     if (rst)
         OUT <= 'b0;
-    else if (WR1)
+    else if (WR1) begin
         registro [addr1] <= IN1;
-    else if (WR2)
+        if (~hold_ctrl)
+            OUT <= registro [addr1];
+        end
+    else if (WR2) begin
         registro [addr2] <= IN2;
-    //else  
-        //OUT <= registro[addr1];
-        //OUT <= registro[addr2];
+        if (~hold_ctrl)
+            OUT <= registro [addr2];
+        end
 end
 endmodule
