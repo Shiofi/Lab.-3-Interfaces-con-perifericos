@@ -1,7 +1,6 @@
 `timescale 1ns / 1ps
 
-module top  #(
-parameter N=32)(
+module top  #(parameter N=32)(
     input logic     clk,
     input logic rst,
     input logic miso,
@@ -36,25 +35,25 @@ logic [31:0]  control;
 //SPI
 
 controlador_SPI SPI (
-                    .clk(clk),
+                    .clk_i(clk),
                     .rst_i(rst),
-                    .MISO(miso),
+                    .MISO_i(miso),
                     .tx_data_i(dato_memoria),
                     .send_i(control[0]),
                     .n_tx_end_i(control [12:4]),
                     .rx_data_o(rx_data),
                     .cs_ctrl_o(cs_control),
-                    .MOSI(mosi),
-                    .sclk(sclk),
+                    .MOSI_o(mosi),
+                    .sclk_o(sclk),
                     .tx_done_o(tx_done_o),
                     .n_rx_end_o(n_rx_end),
                     .all_1s_i(control[2]),
                     .all_0s_i(control[3]),
                     .instruccion_o(instruccion_spi),
-                    .we_2(wr2)     
+                    .we_2_o(wr2)     
                      );
 //Registro de control
-registro_control reg_control (
+control_register reg_control (
         .clk(clk),
         .rst(rst),
         .IN1(in_i),
@@ -91,9 +90,9 @@ registro_control reg_control (
     
 //Cuenta de direcciones
    cuenta_direccion direcciones(
-        .tx_done(tx_done_o),
-        .rst(rst),
-        .addr(direccion)
+        .tx_done_o(tx_done_o),
+        .reset_i(rst),
+        .direccion_o(direccion)
     );
 
 //mux direccion de datos
@@ -114,11 +113,12 @@ registro_control reg_control (
 
 //demux para los WE de los registros.
  demux_1_to_2 write_enable_1(
-        .in(wr),
-        .sel(reg_sel),
-        .out1 (wr1_control),
-        .out2 (wr1_datos)
+        .en_i(wr),
+        .sel_i(reg_sel),
+        .reg1_o (wr1_control),
+        .reg2_o (wr1_datos)
     );
   assign testmemo = dato_memoria;
     assign memdir = control_dir;
 endmodule
+
