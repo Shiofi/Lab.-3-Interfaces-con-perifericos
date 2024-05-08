@@ -31,7 +31,7 @@ module controlador_SPI (
   logic [1:0]   last_state = IDLE;
   logic [4:0]   trans_count;
 
-  always @(posedge clk or posedge rst_i) begin
+  always @(posedge clk_i or posedge rst_i) begin
     if (rst_i) 
     begin
          state                <=    IDLE;
@@ -39,11 +39,11 @@ module controlador_SPI (
          bit_count            <=    5'b0;
          tx_done_o            <=    1'b0;
          cs_ctrl_o            <=    1'b1;
-         MOSI                 <=    1'b0;
-         sclk                 <=    1'b0;
+         MOSI_o                 <=    1'b0;
+         sclk_o                 <=    1'b0;
          n_rx_end_o           <=    10'b0; //check # bits
          rx_data_o            <=    8'b0;
-         we_2                 <=    0;
+         we_2_o                 <=    0;
          control_transmision  <=    0;
          trans_count          <=    0;
     end
@@ -54,49 +54,49 @@ module controlador_SPI (
         begin
           if (send_i) 
           begin
-            // Iniciar transmisión
+            // Iniciar transmisiÃ³n
             cs_ctrl_o <= 1'b0;
             
             if (all_1s_i) 
                begin
-                  MOSI <= 1'b1;
+                  MOSI_o <= 1'b1;
                end 
                else if (all_0s_i) 
                begin
-                  MOSI <= 1'b0;
+                  MOSI_o <= 1'b0;
                end 
                else 
                   begin
-                     MOSI <= tx_data_i[7];
+                     MOSI_o <= tx_data_i[7];
                   end
 
             // Iniciar contador de bits
                bit_count <=   5'b0;
 
             // Primer flanco de reloj
-               sclk     <=    1'b1;
+               sclk_o     <=    1'b1;
                state    <=    TRANSMIT;
              end else 
              begin
-               sclk <= 1'b0;
+               sclk_o <= 1'b0;
              end
         end
 
        TRANSMIT: 
          begin               
-            sclk <= ~sclk;
-            if (sclk == 1'b1) 
+            sclk_o <= ~sclk_o;
+            if (sclk_o == 1'b1) 
                begin
                   if (all_1s_i) 
                      begin
-                        MOSI <= 1'b1;
+                        MOSI_o <= 1'b1;
                      end 
                      else if (all_0s_i) 
                         begin
-                           MOSI <= 1'b0;
+                           MOSI_o <= 1'b0;
                         end else 
                            begin
-                              MOSI <= tx_data_i[7-bit_count];
+                              MOSI_o <= tx_data_i[7-bit_count];
                            end
 
                      bit_count <= bit_count + 1;
@@ -119,19 +119,19 @@ module controlador_SPI (
                         end
 
                      end else begin
-                  rx_data_o <= {rx_data_o[6:0], !MISO};
+                  rx_data_o <= {rx_data_o[6:0], !MISO_i};
                   end
                end
 
         
         REESCRIBIR: begin
-  if (clk == 1'b1) begin
+  if (clk_i == 1'b1) begin
     if (trans_count == 1) begin
-      we_2 <= 1;
+      we_2_o <= 1;
     end else if (trans_count == 14) begin
-      we_2 <= 0;
+      we_2_o <= 0;
       state <= IDLE; // Return to IDLE state
-      sclk <= 1'b0;
+      sclk_o <= 1'b0;
       trans_count <= 0; // Reset trans_count
     end
 
@@ -147,3 +147,4 @@ end
   assign instruccion_o = {6'b000000, n_rx_end_o, 3'b000, n_tx_end_i, all_0s_i, all_1s_i, 1'b0, control_transmision};
   
 endmodule
+
