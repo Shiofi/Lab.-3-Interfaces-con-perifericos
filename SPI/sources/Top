@@ -62,7 +62,16 @@ control_register reg_control (
         .WR2(tx_done_o),
         .OUT(control)
     );
-    
+    //Registro de datos
+    registro_datos reg_datos(
+    .clk(clk),
+    .rst(rst),
+    .IN1(in_i),
+    .IN2(instruccion_spi),
+    .WR1(wr1_control),
+    .WR2(tx_done_o),
+    .OUT(control)
+    );
 //mux para cargar datos
   mux_2_to_1 #(32) carga_datos(
         .sel(control[0]),
