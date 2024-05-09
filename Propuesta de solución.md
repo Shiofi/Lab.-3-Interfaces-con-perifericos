@@ -65,7 +65,7 @@ En esta parte se hará lectura del sensor de luminosidad mediante SPI, los datos
 
 A continuación se muestran los bloques a implementar:
 
-![imagen](C:\Users\fchav\OneDrive\Documentos\FPGA.jpg)
+![imagen](https://github.com/Shiofi/Pruebas/blob/main/FPGA.jpg)
 
 Además se propone la siguiente máquina de estados:
 
