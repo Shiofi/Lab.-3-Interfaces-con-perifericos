@@ -5,11 +5,12 @@ module UART_top(
     input   logic             reset_i,
     input   logic   [31:0]    entrada_perif_UART_i,
     input   logic             rx,
-    input   logic             reg_sel_i, 
-    input   logic             wr_i, 
+    input   logic             reg_sel_i,
+    input   logic             wr_i,
+    input   logic             addr_i,
     
     output  logic             tx,
-    output  logic   [31:0]    salida_o  
+    output  logic   [31:0]    salida_o
     );
     
     logic    [31:0]    instruccion_UART;
@@ -23,54 +24,45 @@ module UART_top(
     logic              wr1_datos;
     logic    [7:0]     data_out;
     logic    [7:0]     data_test;
+    logic              reg_seg_o;
+    logic              out;
     
-    UART UART(
+    ControlReg reg_control (
         .clk(clk_i),
-        .reset(reset_i),
-        .tx_start(control [0]),
-        .tx_rdy(tx_rdy),
-        .rx_data_rdy(rx_data_rdy),
-        .data_in(data_test),
-        .data_out(data_out),
-        .rx(rx),
-        .tx(tx),
-        .bit_send(bit_send),
-        .bit_new(bit_new) 
-    );
-    
-    registro_control reg_control (
-        .clk_i(clk_i),
-        .rst_i(reset_i),
-        .in1(entrada_perif_UART_i),
-        .in2(instruccion_UART),
+        .rst(reset_i),
+        .IN1(entrada_perif_UART_i),
+        .IN2(instruccion_UART),
         .WR1(wr1),
         .WR2(wr2_test),
-        .control_o(control)
+        .out(out)
     );
     
-    registro_datos reg_datos(
-        .clk_i(clk_i),
-        .reset_i(reset_i),
-        .data_in1(entrada_perif_UART_i),
-        .data_in2(data_out),
-        .we1_i(wr1_datos),
-        .we2_i(rx_data_rdy),
-        .data_out(data_test)
+   DataReg reg_datos(
+        .clk(clk_i),
+        .rst(reset_i),
+        .IN1(entrada_perif_UART_i),
+        .IN2(data_out),
+        .WR1(wr1_datos),
+        .WR2(rx_data_rdy),
+        .OUT(data_test),
+        .addr1(addr_i),
+        .addr2(reg_seg_o)
     );
     
-    mux_2_a_1 control_salida(
-        .seleccion_i(reg_sel_i),
-        .entrada0_i(control[1:0]),
-        .entrada1_i(data_test),
-        .salida_o(salida_o)
+   mux control_salida(
+        .reg_sel_i(reg_sel_i),
+        .in_1(out),
+        .in_2(data_test),
+        .out(salida_o)
     );
     
-    demux_1_a_2 demux_wr(
-        .en_i(wr_i),
-        .sel_i(reg_sel_i),
-        .reg1_o(wr1),
-        .reg2_o(wr1_datos)
+    demux demux_wr(
+        .wr_i(wr_i),
+        .reg_sel_i(reg_sel_i),
+        .out1_WR1(wr1),
+        .out2_WR1(wr1_datos)
     );
+    
     
     always_ff @(posedge clk_i) begin
         if (tx_rdy == 1) begin
