@@ -87,3 +87,4 @@ module tb_top_interfaz_periferico_SPI;
         // Finalizar la simulación
         #200 $finish;
     end
+endmodule
