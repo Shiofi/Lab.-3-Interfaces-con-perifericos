@@ -26,10 +26,15 @@ module top_interfaz_periferico_SPI(
     logic [7:0] testmemo;
     logic clk_1kHz;
     
-    clk_wiz_0 instance_name(
-    .clk_out1(clk_i),     // output clk_out1
-    .clk_in1(clk_pi)
-    );      // input clk_in1
+   clk_wiz_0 inst (
+  // Clock out ports  
+  .clk_out1(clk_i),
+  // Status and control signals               
+  .reset(reset_pi), 
+ // .locked(locked),
+ // Clock in ports
+  .clk_in1(clk_pi)
+  );
     
     generador_datos_control generador_dat_cont (
         .clk_i(clk_pi),
@@ -74,4 +79,3 @@ module top_interfaz_periferico_SPI(
     );
    
 endmodule
-
